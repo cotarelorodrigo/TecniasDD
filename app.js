@@ -18,8 +18,8 @@ function Celda(tipo_de_celda, invalid){
 
 
 	this.sosBorde = function(){
-							if( (this.celdas_adyacentes[0].sosInvalida()) || (this.celdas_adyacentes[1].sosInvalida()) 
-								|| (this.celdas_adyacentes[2].sosInvalida()) ||  (this.celdas_adyacentes[3].sosInvalida()) ){
+							if( ((this.celdas_adyacentes[0].sosInvalida()) || (this.celdas_adyacentes[1].sosInvalida()) 
+								|| (this.celdas_adyacentes[2].sosInvalida()) ||  (this.celdas_adyacentes[3].sosInvalida())) && (this.impasble) ){
 									return true;
 							}
 							return false;
@@ -203,7 +203,7 @@ function Laberinto(celdas, numeros_impasables){
 											}
 										}
 										if(!valida){
-											console.log("No es valida la fila: " + i)
+											console.log("No es valida la fila: " + (i+1))
 											return false
 										}
 									}
@@ -220,7 +220,7 @@ function Laberinto(celdas, numeros_impasables){
 										}
 										if(!valida)
 										{ 
-											console.log("No es valida la columna: " + i)
+											console.log("No es valida la columna: " + (i+1))
 											return false
 										}
 									}
@@ -248,5 +248,29 @@ function Laberinto(celdas, numeros_impasables){
 
 							}
 
+
+	this.validar =	function(){
+						this.setear_laberinto();
+		
+						if(!this.dimensiones_validas()){
+							console.log('Laberinto de dimensiones invalidas')
+						}
+						else if(!this.minimoCeldasTransitables()){
+							console.log('No hay 2 celdas transitables')
+						}
+						else if(!this.celdasTransitables_conexionesMinimas()){
+							console.log('Todas las celdas no tienen como minimo dos conexiones')
+						}
+						else if(!this.conexionEntreCeldas()){
+							console.log('No existe al menos un camino entre cada celda')
+						}
+						else if(!this.minMovimientos()){
+							console.log('Vuelve a la misma celda con 4 movimientos o menos')
+						}
+						else{
+							return 'valido'
+						}
+						return 'INVALIDO!!!'
+					}
 }
 
