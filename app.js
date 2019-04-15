@@ -50,17 +50,6 @@ function Celda(tipo_de_celda, invalid){
 						return r;
 					}
 
-	this.sosPipeDown = 	function(){
-							if( (this.celdas_adyacentes[3].sosTransitable()) ) return true;
-							return false;
-						}
-
-	this.sosPipeRight = function(){
-							if(  (this.celdas_adyacentes[2].sosTransitable()) ) return true;
-							return false;
-						}
-
-
 }
 
 function Camino(a){
@@ -154,6 +143,51 @@ function Laberinto(celdas, numeros_impasables){
 									return movs;
 								}
 
+	this.getCeldasTrasitables = 	function(){
+										var r = []
+										for(var i = 0; i < this.mapa.length; i++){ //i fila
+											for(var j = 0; j < this.mapa[i].length; j++){ //j columna
+												if(this.mapa[i][j].sosTransitable()) r.push(this.mapa[i][j])
+											}
+										}
+										return r
+									}
+
+	this.todasConexcionesPosibles = function(celda){
+										if(!celda.sosTransitable())
+										{
+											console.log('Una celda intrasitable no puede conectarse con otras')
+											return false;
+										}
+										var celdas_sin_visitar = this.getCeldasTrasitables();
+										var celdas_visitadas = [celda];
+										//console.log('Celda visitadas: ' + celdas_visitadas)
+										var index = celdas_sin_visitar.indexOf(celda);
+										if (index > -1) {
+										  celdas_sin_visitar.splice(index, 1);
+										}
+
+										var proximas = [celda]
+										var c;
+										do{
+											c = proximas.pop();
+											c = c.avanzar();
+											for(var i = 0; i < c.length; i++){
+												index = celdas_sin_visitar.indexOf(c[i]);
+												if (index > -1) {
+												  celdas_sin_visitar.splice(index, 1);
+												  celdas_visitadas.push(c[i]);
+												  proximas.push(c[i])
+												}
+											}
+										}while(proximas.length > 0)
+
+										if(celdas_sin_visitar.length == 0) return true
+										console.log('Una celda no puede conectarse con alguna otra')
+										return false
+
+									}
+
 
 
 	//VALIDACIONES
@@ -191,38 +225,9 @@ function Laberinto(celdas, numeros_impasables){
 
 	// - Existe al menos un camino entre cada par de celdas transitables.
 	this.conexionEntreCeldas = 	function(){
-									//Recorro primero filas
-									var valida = false;
-
-									for(var i = 1; i < this.mapa.length-2; i++){ //i fila
-										valida = false;
-										for(var j = 1; j < this.mapa[i].length-1; j++){ //j columna
-											if(this.mapa[i][j].sosPipeDown()){
-												valida = true; //Minimo una celda de la fila debe ser pipe horizontal
-												break;
-											}
-										}
-										if(!valida){
-											console.log("No es valida la fila: " + (i+1))
-											return false
-										}
-									}
-
-								
-									//Recorro por columnas
-									for(var i = 1; i < this.mapa[0].length-2; i++){
-										valida = false;
-										for(var j = 1; j < this.mapa.length-1; j++){
-											if(this.mapa[j][i].sosPipeRight()){
-												valida = true; //Minimo una celda de la fila debe ser pipe horizontal
-												break;
-											}
-										}
-										if(!valida)
-										{ 
-											console.log("No es valida la columna: " + (i+1))
-											return false
-										}
+									var celdas_transitables = this.getCeldasTrasitables()
+									for(var i = 0; i < celdas_transitables.length; i++){
+										if(!this.todasConexcionesPosibles(celdas_transitables[i])) return false
 									}
 									return true;
 								}
